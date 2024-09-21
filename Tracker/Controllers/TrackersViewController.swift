@@ -2,6 +2,7 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
+    
     private var trackerCollection: UICollectionView!
     private var datePicker: UIDatePicker!
     private var searchController: UISearchController!
@@ -116,6 +117,7 @@ extension TrackersViewController {
         datePicker = UIDatePicker()
         datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
+        datePicker.maximumDate = Date()
         datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.addTarget(
             self,
@@ -134,7 +136,7 @@ extension TrackersViewController {
 
     private func filterContentForData() {
         let dayNumber = Calendar.current.component(.weekday, from: currentDate)
-        let currentWeekDate = WeekDay.allCases[dayNumber - 1]
+        let currentWeekDate = DayOfWeek.allCases[dayNumber - 1]
         filteredCategories.removeAll()
 
         guard !categories.isEmpty else { return }
@@ -330,8 +332,8 @@ extension TrackersViewController: TrackerCellButtonDelegate {
 
 //MARK: - AddTrackerDelegate
 
-extension TrackersViewController: AddTrackerDelegate {
-    func didAddTracker(_ tracker: Tracker) {
+extension TrackersViewController: AddTrackerViewControllerDelegate {
+    func didCreateNewHabit(_ tracker: Tracker) {
         let trackerCategory = TrackerCategory(title: "Новая категория", trackers: [tracker])
         categories.append(trackerCategory)
         trackerCollection.reloadData()

@@ -1,289 +1,237 @@
 import UIKit
 
-protocol AddTrackerDelegate: AnyObject {
-    func didAddTracker(_ tracker: Tracker)
+protocol AddTrackerViewControllerDelegate: AnyObject {
+    func didCreateNewHabit(_ tracker: Tracker)
 }
 
-final class AddTrackerViewController: UIViewController{
+class AddTrackerViewController: UIViewController, ScheduleViewControllerDelegate {
     
-    weak var delegate: AddTrackerDelegate?
+    weak var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
+    weak var delegate: AddTrackerViewControllerDelegate?
     
-    //MARK: - Создание UI-Элементов
-
-    private var habitButton: UIButton!
-    private var eventButton: UIButton!
-    private var tableView: UITableView!
-    private var typeTitle: UILabel!
-    private var textField: UITextField!
-    private var saveButton: UIButton!
-    private var stackView: UIStackView!
-    private var selectedTitle: [String] = ["Создание трекера", "Новая привычка", "Новое нерегулярное событие"]
-    private var cellTitle: [String] = ["Категория", "Расписание"]
-    private var cellsNumber = 0
-    private var selectedWeekdays: [WeekDay] = []
+    private var selectedDays: [DayOfWeek] = []
     
-    //MARK: - viewDidLoad
-
+    private var habit: [(name: String, pickedSettings: String)] = [
+        (name: "Категория", pickedSettings: ""),
+        (name: "Расписание", pickedSettings: "")
+    ]
+    
+    // MARK: - UI Elements
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Новая привычка"
+        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let nameTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "    Введите название трекера"
+        textField.font = UIFont(name: "YSDisplay-Medium", size: 17)
+        textField.backgroundColor = .ypBackgroundDay
+        textField.layer.cornerRadius = 10
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    private lazy var clearTextFieldButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "error_clear"), for: .normal)
+        button.frame = CGRect(x: 0, y: 0, width: 17, height: 17)
+        button.contentMode = .scaleAspectFit
+        button.addTarget(self, action: #selector(clearTextFieldButtonClicked), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.layer.cornerRadius = 10
+        tableView.separatorStyle = .singleLine
+        tableView.isScrollEnabled = false
+        tableView.tableHeaderView = nil
+        tableView.sectionHeaderHeight = 0
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        return tableView
+    }()
+    
+    private let cancelButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Отменить", for: .normal)
+        button.setTitleColor(.ypRed, for: .normal)
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.ypRed.cgColor
+        button.layer.cornerRadius = 10
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        return button
+    }()
+    
+    private let createButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Создать", for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .ypGray
+        button.layer.cornerRadius = 10
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.dataSource = self
+        tableView.delegate = self
+        setUpView()
+    }
+    
+    // MARK: - Setup UI
+    private func setUpView() {
         view.backgroundColor = .ypWhite
-        settingForTableView()
-        settingForTextField()
-        setupUIForButton()
-        addViews()
-        setConstraints()
-    }
-    
-    //MARK: - Настройка UI-Элементов
-    
-    private func addViews() {
-        view.addSubview(habitButton)
-        view.addSubview(eventButton)
-        view.addSubview(typeTitle)
-        view.addSubview(textField)
-        view.addSubview(tableView)
-        view.addSubview(stackView)
-    }
-    
-    private func setConstraints() {
         
+        view.addSubview(titleLabel)
+        view.addSubview(nameTextField)
+        view.addSubview(cancelButton)
+        view.addSubview(createButton)
+        view.addSubview(tableView)
+        
+        nameTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
+        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
+        
+        let width = (view.frame.width - 48) / 2
         NSLayoutConstraint.activate([
-            habitButton.heightAnchor.constraint(equalToConstant: 60),
-            habitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            habitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            habitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            habitButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-
-            eventButton.heightAnchor.constraint(equalToConstant: 60),
-            eventButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            eventButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            eventButton.topAnchor.constraint(equalTo: habitButton.bottomAnchor, constant: 16),
-
-            typeTitle.topAnchor.constraint(equalTo: view.topAnchor, constant: 13),
-            typeTitle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
-            textField.heightAnchor.constraint(equalToConstant: 75),
-            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            textField.topAnchor.constraint(equalTo: typeTitle.bottomAnchor, constant: 24),
-
-            tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            nameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
+            nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            nameTextField.heightAnchor.constraint(equalToConstant: 75),
+            
+            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            cancelButton.widthAnchor.constraint(equalToConstant: width),
+            cancelButton.heightAnchor.constraint(equalToConstant: 60),
+            
+            createButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            createButton.widthAnchor.constraint(equalToConstant: width),
+            createButton.heightAnchor.constraint(equalToConstant: 60),
+            
+            tableView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableView.bottomAnchor.constraint(equalTo: stackView.topAnchor),
-
-            stackView.heightAnchor.constraint(equalToConstant: 60),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -34)
+            tableView.heightAnchor.constraint(equalToConstant: 150)
         ])
-        
     }
     
-    private func settingForTableView() {
-        tableView = UITableView()
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.isHidden = true
-        tableView.layer.cornerRadius = 16
-        tableView.layer.masksToBounds = true
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+    @objc private func cancelButtonTapped() {
+        selectedDays.removeAll()
+        dismiss(animated: true, completion: nil)
     }
     
-    private func settingForTextField() {
-        textField = UITextField()
-        textField.delegate = self
-        textField.backgroundColor = .ypBackgroundDay
-        textField.layer.cornerRadius = 16
-        textField.placeholder = "Введите название трекера"
-        textField.textAlignment = .left
-        textField.isHidden = true
+    @objc private func createButtonTapped() {
+        guard let trackerTitle = nameTextField.text else {return}
+        let newTracker = Tracker(id: UUID(), name: trackerTitle, color: .ypSelection14, emoji: "😴", timetable: selectedDays)
+        delegate?.didCreateNewHabit(newTracker)
+        dismiss(animated: true)
     }
-}
-
-//MARK: - Настройка UI-Элементов
-
-extension AddTrackerViewController {
-    private func setupUIForButton() {
-
-        habitButton = setupButtonUI()
-        habitButton.setTitle("Привычка", for: .normal)
-
-        eventButton = setupButtonUI()
-        eventButton.setTitle("Нерегулярное событие", for: .normal)
-
-        typeTitle = UILabel()
-        typeTitle.text = selectedTitle[0]
-        typeTitle.textColor = .ypBlackDay
-        typeTitle.font = .systemFont(ofSize: 16, weight: .medium)
-
-        let discardButton = setupActionButtonUI()
-        discardButton.setTitle("Отменить", for: .normal)
-        discardButton.setTitleColor(.ypRed, for: .normal)
-        discardButton.backgroundColor = .ypWhite
-        discardButton.layer.borderColor = UIColor.ypRed.cgColor
-        discardButton.layer.borderWidth = 1.0
-
-        saveButton = setupActionButtonUI()
-        saveButton.setTitle("Создать", for: .normal)
-        saveButton.setTitleColor(.ypWhite, for: .normal)
-        saveButton.backgroundColor = .ypGray
-        saveButton.isEnabled = false
-
-        stackView = UIStackView(arrangedSubviews: [discardButton, saveButton])
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = 8
-        stackView.isHidden = true
-
-        [habitButton, eventButton, typeTitle, textField, tableView, stackView].forEach{
-            view.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
-        }
+    
+    private func navigateToCategory() {}
+    
+    private func navigateToSchedule() {
+        let scheduleViewController = ScheduleViewController()
+        scheduleViewController.delegate = self
+        print("Delegate set: \(scheduleViewController.delegate != nil)")
+        scheduleViewController.modalPresentationStyle = .popover
+        present(scheduleViewController, animated: true, completion: nil)
     }
-
-    private func setupActionButtonUI() -> UIButton {
-        let button = UIButton(type: .system)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.addTarget(self, action: #selector(actionButtonTapped(_:)), for: .touchUpInside)
-        button.tintColor = .ypWhite
-        button.layer.cornerRadius = 16
-        button.layer.masksToBounds = true
-
-        return button
-    }
-
-    private func setupButtonUI() -> UIButton {
-        let button = UIButton(type: .system)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
-        button.tintColor = .ypWhite
-        button.backgroundColor = .ypBlackDay
-        button.layer.cornerRadius = 16
-        button.layer.masksToBounds = true
-
-        return button
-    }
-
-    @objc private func actionButtonTapped(_ sender: UIButton) {
-        let trackerName = textField.text as? String ?? ""
-
-        if sender == saveButton {
-            let newTracker = Tracker(
-                id: UUID(),
-                name: trackerName,
-                color: .blue,
-                emoji: "😊",
-                timetable: selectedWeekdays
-            )
-
-            delegate?.didAddTracker(newTracker)
-            dismiss(animated: true, completion: nil)
+    
+    @objc private func textFieldChanged(_ textField: UITextField) {
+        if let text = textField.text, !text.isEmpty {
+            clearTextFieldButton.isHidden = false
         } else {
-            dismiss(animated: true, completion: nil)
+            clearTextFieldButton.isHidden = true
+        }
+        checkIfCorrect()
+    }
+    
+    @objc private func clearTextFieldButtonClicked() {
+        nameTextField.text = ""
+        clearTextFieldButton.isHidden = true
+    }
+    
+    private func checkIfCorrect() {
+        if let text = nameTextField.text, !text.isEmpty && !selectedDays.isEmpty {
+            createButton.isEnabled = true
+            createButton.backgroundColor = .ypBlackDay
+        } else {
+            createButton.isEnabled = false
+            createButton.backgroundColor = .ypGray
         }
     }
-
-    @objc private func buttonTapped(_ sender: UIButton) {
-        eventButton.removeFromSuperview()
-        habitButton.removeFromSuperview()
-        textField.isHidden = false
-        tableView.isHidden = false
-        stackView.isHidden = false
-
-        if sender == habitButton {
-            typeTitle.text = selectedTitle[1]
-            cellsNumber = 2
-        } else {
-            typeTitle.text = selectedTitle[2]
-            cellsNumber = 1
-        }
-
+    
+    func didSelectDays(_ days: [DayOfWeek]) {
+        selectedDays = days
+        print("didSelectDays called with days: \(days)")
+        let schedule = days.isEmpty ? "" : days.map { $0.shortDayName }.joined(separator: ", ")
+        habit[1].pickedSettings = schedule
+        print("Updated pickedSettings: \(habit[1].pickedSettings)")
         tableView.reloadData()
-    }
-}
-
-//MARK: - UITableViewDelegate
-
-extension AddTrackerViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 75
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-
-        if indexPath.row == 0 {
-            let destinationViewController = CategoryViewController()
-            present(destinationViewController, animated: true, completion: nil)
-        } else {
-            let destinationViewController = ScheduleViewController()
-            destinationViewController.delegate = self
-            present(destinationViewController, animated: true, completion: nil)
+        dismiss(animated: true) {
+            print("NewHabitViewController dismissed")
         }
     }
 }
 
-//MARK: - UITableViewDataSource
-
-extension AddTrackerViewController: UITableViewDataSource {
+extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cellsNumber
+        return 2
     }
-
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 76
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
-        cell.textLabel?.text = cellTitle[indexPath.row]
-        cell.backgroundColor = .ypBackgroundDay
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+        cell.textLabel?.text = habit[indexPath.row].name
+        cell.detailTextLabel?.text = habit[indexPath.row].pickedSettings
+        cell.textLabel?.font = UIFont(name: "YSDisplay-Medium", size: 17)
+        cell.detailTextLabel?.font = UIFont(name: "YSDisplay-Medium", size: 17)
         cell.textLabel?.textColor = .ypBlackDay
-        cell.textLabel?.font = .systemFont(ofSize: 17, weight: .regular)
-
+        cell.detailTextLabel?.textColor = .ypGray
+        cell.backgroundColor = .clear
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
-}
-
-//MARK: - UITextFieldDelegate
-
-extension AddTrackerViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        return self.textLimit(existingText: textField.text,
-                              newText: string,
-                              limit: 38)
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0.001
     }
-
-    private func textLimit(existingText: String?,
-                           newText: String,
-                           limit: Int) -> Bool {
-        let text = existingText ?? ""
-        let isAtLimit = text.count + newText.count <= limit
-        return isAtLimit
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return UIView(frame: .zero)
     }
-
-    func textFieldDidChangeSelection(_ textField: UITextField) {
-        if cellsNumber == 2 && selectedWeekdays.isEmpty {
-            return
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch indexPath.row {
+        case 0:
+            navigateToCategory()
+        case 1:
+            navigateToSchedule()
+        default:
+            break
         }
-
-        if let text = textField.text, !text.isEmpty {
-            saveButton.backgroundColor = .ypBlackDay
-            saveButton.isEnabled = true
-        }
+        tableView.deselectRow(at: indexPath, animated: true)
+        checkIfCorrect()
     }
 }
 
-//MARK: - ScheduleDelegate
-
-extension AddTrackerViewController: ScheduleDelegate {
-    func didDoneTapped(_ weekdays: [String]) {
-        for string in weekdays {
-            if let weekday = WeekDay(rawValue: string) {
-                self.selectedWeekdays.append(weekday)
-            }
-        }
-
-        if let text = textField.text, !text.isEmpty && !selectedWeekdays.isEmpty {
-            saveButton.backgroundColor = .ypBlackDay
-            saveButton.isEnabled = true
-        }
-    }
-}
