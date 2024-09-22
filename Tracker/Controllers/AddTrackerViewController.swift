@@ -17,6 +17,7 @@ class AddTrackerViewController: UIViewController, ScheduleViewControllerDelegate
     ]
     
     // MARK: - UI Elements
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Новая привычка"
@@ -26,16 +27,7 @@ class AddTrackerViewController: UIViewController, ScheduleViewControllerDelegate
         return label
     }()
     
-    private let nameTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "    Введите название трекера"
-        textField.font = UIFont(name: "YSDisplay-Medium", size: 17)
-        textField.backgroundColor = .ypBackgroundDay
-        textField.layer.cornerRadius = 10
-        textField.clearButtonMode = .whileEditing
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
+    private let nameTextField = NameTextField(placeholder: "Введите название трекера")
     
     private lazy var clearTextFieldButton: UIButton = {
         let button = UIButton(type: .system)
@@ -84,6 +76,7 @@ class AddTrackerViewController: UIViewController, ScheduleViewControllerDelegate
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        nameTextField.delegate = self
         tableView.dataSource = self
         tableView.delegate = self
         setUpView()
@@ -232,6 +225,13 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
         }
         tableView.deselectRow(at: indexPath, animated: true)
         checkIfCorrect()
+    }
+}
+
+extension AddTrackerViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
 

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		56B709982C93524900A68746 /* WeekdayTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B709972C93524900A68746 /* WeekdayTableViewCell.swift */; };
 		56B7099C2C9356A500A68746 /* UICollectionViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B7099B2C9356A500A68746 /* UICollectionViewExtension.swift */; };
+		56BFEBB32CA0433C00099310 /* UITextFieldExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56BFEBB22CA0433C00099310 /* UITextFieldExtension.swift */; };
+		56BFEBB62CA043F800099310 /* NameTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56BFEBB52CA043F800099310 /* NameTextField.swift */; };
 		BE29CB862BA0B48700BA4C7E /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE29CB852BA0B48700BA4C7E /* TabBarViewController.swift */; };
 		BE29CB882BA0C1E000BA4C7E /* StatisticViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE29CB872BA0C1E000BA4C7E /* StatisticViewController.swift */; };
 		BE29CB8A2BA0C25500BA4C7E /* TrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE29CB892BA0C25500BA4C7E /* TrackersViewController.swift */; };
@@ -32,6 +34,8 @@
 /* Begin PBXFileReference section */
 		56B709972C93524900A68746 /* WeekdayTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekdayTableViewCell.swift; sourceTree = "<group>"; };
 		56B7099B2C9356A500A68746 /* UICollectionViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICollectionViewExtension.swift; sourceTree = "<group>"; };
+		56BFEBB22CA0433C00099310 /* UITextFieldExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextFieldExtension.swift; sourceTree = "<group>"; };
+		56BFEBB52CA043F800099310 /* NameTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameTextField.swift; sourceTree = "<group>"; };
 		BE29CB852BA0B48700BA4C7E /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		BE29CB872BA0C1E000BA4C7E /* StatisticViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticViewController.swift; sourceTree = "<group>"; };
 		BE29CB892BA0C25500BA4C7E /* TrackersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersViewController.swift; sourceTree = "<group>"; };
@@ -78,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				56B7099B2C9356A500A68746 /* UICollectionViewExtension.swift */,
+				56BFEBB22CA0433C00099310 /* UITextFieldExtension.swift */,
 			);
 			path = UIKitExtensions;
 			sourceTree = "<group>";
@@ -121,6 +126,14 @@
 			path = MockData;
 			sourceTree = "<group>";
 		};
+		56BFEBB42CA043DD00099310 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				56BFEBB52CA043F800099310 /* NameTextField.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		BE75C99C2BB0BD52000506D3 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -161,6 +174,7 @@
 		BE7F96D02B987C760073F9FC /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
+				56BFEBB42CA043DD00099310 /* Helpers */,
 				56B709A02C9357BA00A68746 /* MockData */,
 				56B7099F2C93578000A68746 /* Controllers */,
 				56B7099E2C93576A00A68746 /* Applications */,
@@ -259,10 +273,12 @@
 				BE9CF5B92BB5783C00D2DE8D /* CategoryViewController.swift in Sources */,
 				BE9CF5B72BB577C800D2DE8D /* ScheduleViewController.swift in Sources */,
 				BE75C9A22BB15289000506D3 /* GeometricParams.swift in Sources */,
+				56BFEBB62CA043F800099310 /* NameTextField.swift in Sources */,
 				BE75C9A42BB1C005000506D3 /* StubData.swift in Sources */,
 				BE29CB862BA0B48700BA4C7E /* TabBarViewController.swift in Sources */,
 				56B709982C93524900A68746 /* WeekdayTableViewCell.swift in Sources */,
 				BE75C9A62BB1C54B000506D3 /* SupplementaryView.swift in Sources */,
+				56BFEBB32CA0433C00099310 /* UITextFieldExtension.swift in Sources */,
 				BE7F96D22B987C760073F9FC /* AppDelegate.swift in Sources */,
 				BE75C99B2BAC41BB000506D3 /* TrackerRecord.swift in Sources */,
 				BE29CB8C2BA4516800BA4C7E /* TrackerCell.swift in Sources */,
