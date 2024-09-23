@@ -1,13 +1,13 @@
 import UIKit
 
-protocol AddTrackerViewControllerDelegate: AnyObject {
+protocol CreateTrackerViewControllerDelegate: AnyObject {
     func didCreateNewHabit(_ tracker: Tracker)
 }
 
-class AddTrackerViewController: UIViewController, ScheduleViewControllerDelegate {
+class CreateTrackerViewController: UIViewController, ScheduleViewControllerDelegate {
     
     weak var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
-    weak var delegate: AddTrackerViewControllerDelegate?
+    weak var delegate: CreateTrackerViewControllerDelegate?
     
     private var selectedDays: [DayOfWeek] = []
     
@@ -183,7 +183,7 @@ class AddTrackerViewController: UIViewController, ScheduleViewControllerDelegate
     }
 }
 
-extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
+extension CreateTrackerViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
@@ -228,7 +228,7 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension AddTrackerViewController: UITextFieldDelegate {
+extension CreateTrackerViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
