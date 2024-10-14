@@ -1,6 +1,6 @@
 import Foundation
 
-class CategoryNamesViewModel {
+class CategoryNamesListViewModel {
     var namesBinding: Binding<[CategoryNameViewModel]>?
 
     private let trackerCategoryStore = TrackerCategoryStore()
@@ -32,7 +32,7 @@ class CategoryNamesViewModel {
     }
 }
 
-extension CategoryNamesViewModel: TrackerCategoryStoreDelegate {
+extension CategoryNamesListViewModel: TrackerCategoryStoreDelegate {
     func storeCategory() {
         names = trackerCategoryStore.categories.map{
             CategoryNameViewModel(

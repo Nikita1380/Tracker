@@ -7,7 +7,7 @@ protocol CategoryDelegate: AnyObject {
 final class CategoryViewController: UIViewController {
     weak var delegate: CategoryDelegate?
 
-    private var viewModel: CategoryNamesViewModel
+    private var viewModel: CategoryNamesListViewModel
 
     private lazy var typeTitle: UILabel = {
         let typeTitle = UILabel()
@@ -61,7 +61,7 @@ final class CategoryViewController: UIViewController {
         return labelStub
     }()
 
-    init(viewModel: CategoryNamesViewModel) {
+    init(viewModel: CategoryNamesListViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }

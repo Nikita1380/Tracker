@@ -80,8 +80,4 @@ final class CategoryTableViewCell: UITableViewCell {
             customSeparatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
-
-    func getLabelText() -> String? {
-        return categoryLabel.text
-    }
 }

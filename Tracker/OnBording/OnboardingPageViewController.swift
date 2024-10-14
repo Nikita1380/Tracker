@@ -1,17 +1,6 @@
 import UIKit
 
-final class OnboardingPageViewController: UIPageViewController {    
-    private var doneButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
-        button.tintColor = .ypWhite
-        button.backgroundColor = .ypBlackDay
-        button.layer.cornerRadius = 16
-        button.layer.masksToBounds = true
-        button.setTitle("Вот это технологии!", for: .normal)
-        return button
-    }()
+final class OnboardingPageViewController: UIPageViewController {
 
     private lazy var pageControl: UIPageControl = {
         let pageControl = UIPageControl()
@@ -25,12 +14,10 @@ final class OnboardingPageViewController: UIPageViewController {
         return pageControl
     }()
     
-    private lazy var pages: [UIViewController] = {
-        let first = OnboardingViewController(image: "pageFirst", text: "Отслеживайте только то, что хотите")
-        let second = OnboardingViewController(image: "pageSecond", text: "Даже если это не литры воды и йога")
-        
-        return [first, second]
-    }()
+    private let pages: [UIViewController] = [
+        OnboardingViewController(image: "pageFirst", text: "Отслеживайте только то, что хотите"),
+        OnboardingViewController(image: "pageSecond", text: "Даже если это не литры воды и йога"),
+    ]
     
     init() {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
@@ -56,7 +43,7 @@ final class OnboardingPageViewController: UIPageViewController {
 
 extension OnboardingPageViewController {
     private func setupUI() {
-        [pageControl, doneButton].forEach {
+        [pageControl].forEach {
             view.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -64,23 +51,7 @@ extension OnboardingPageViewController {
         NSLayoutConstraint.activate([
             pageControl.topAnchor.constraint(equalTo: view.topAnchor, constant: 638),
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
-            doneButton.heightAnchor.constraint(equalToConstant: 60),
-            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            doneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            doneButton.topAnchor.constraint(equalTo: pageControl.bottomAnchor, constant: 16)
         ])
-    }
-    
-    @objc private func buttonTapped(_ sender: UIButton) {
-        dismiss(animated: true, completion: nil)
-        guard let window = UIApplication.shared.windows.first else {
-            assertionFailure("Invalid Configuration")
-            return
-        }
-
-        window.rootViewController = TabBarController()
     }
 }
 

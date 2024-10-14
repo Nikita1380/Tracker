@@ -1,6 +1,20 @@
 import UIKit
 
 final class OnboardingViewController: UIViewController {
+    
+    private var doneButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
+        button.tintColor = .ypWhite
+        button.backgroundColor = .ypBlackDay
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Вот это технологии!", for: .normal)
+        return button
+    }()
+    
     private var typeTitle: UILabel = {
         let typeTitle = UILabel()
         typeTitle.textColor = .ypBlackDay
@@ -36,7 +50,7 @@ final class OnboardingViewController: UIViewController {
 
 extension OnboardingViewController {
     private func setupUI() {
-        [image, typeTitle].forEach {
+        [image, typeTitle, doneButton].forEach {
             view.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -51,6 +65,22 @@ extension OnboardingViewController {
             typeTitle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             typeTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             typeTitle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            doneButton.heightAnchor.constraint(equalToConstant: 60),
+            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            doneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            doneButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 668)
         ])
+    }
+    
+    @objc private func buttonTapped(_ sender: UIButton) {
+        dismiss(animated: true, completion: nil)
+        guard let window = UIApplication.shared.windows.first else {
+            assertionFailure("Invalid Configuration")
+            return
+        }
+
+        window.rootViewController = TabBarController()
     }
 }
