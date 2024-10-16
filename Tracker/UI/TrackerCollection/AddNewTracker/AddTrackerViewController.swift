@@ -199,7 +199,13 @@ extension AddTrackerViewController {
     }
 
     private func formatSelectedWeekdays() -> String {
-        let sortedWeekdays = selectedWeekdays.sorted { $0.rawValue < $1.rawValue }
+        let sortedWeekdays = selectedWeekdays.sorted {
+            guard let firstIndex = WeekDay.allCases.firstIndex(of: $0),
+                  let secondIndex = WeekDay.allCases.firstIndex(of: $1) else {
+                return false
+            }
+            return firstIndex < secondIndex
+        }
         var resultString = ""
 
         for day in sortedWeekdays {
@@ -222,6 +228,10 @@ extension AddTrackerViewController {
 
             if day != sortedWeekdays.last {
                 resultString += ", "
+            }
+            
+            if sortedWeekdays.count >= 7{
+                resultString = "Каждый день"
             }
         }
 
