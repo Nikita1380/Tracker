@@ -19,10 +19,13 @@ final class ColorCollectionViewController: UIViewController {
                                                           cellSpacing: 5)
     
     let colorCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(
             frame: .zero,
-            collectionViewLayout: UICollectionViewFlowLayout()
+            collectionViewLayout: layout
         )
+        
+        layout.headerReferenceSize = .init(width: 50, height: 50)
         
         collectionView.isScrollEnabled = false
         
@@ -30,7 +33,7 @@ final class ColorCollectionViewController: UIViewController {
         collectionView.register(
             SupplementaryView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: SupplementaryView.supplementaryIdentifier
+            withReuseIdentifier: "\(SupplementaryView.self)"
         )
         
         collectionView.allowsMultipleSelection = false
@@ -79,40 +82,23 @@ extension ColorCollectionViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        var id: String
         switch kind {
         case UICollectionView.elementKindSectionHeader:
-            id = "header"
-        case UICollectionView.elementKindSectionHeader:
-            id = "footer"
+            guard let view = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: "\(SupplementaryView.self)",
+                for: indexPath) as? SupplementaryView else {
+                    return UICollectionReusableView()
+                }
+            view.titleLabel.text = "Цвет"
+            return view
         default:
-            id = ""
-        }
-        
-        guard let view = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind,
-            withReuseIdentifier: id,
-            for: indexPath
-        ) as? SupplementaryView else {
             return UICollectionReusableView()
         }
-        
-        view.titleLabel.text = "Цвет"
-        return view
     }
 }
 
 extension ColorCollectionViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        let indexPath = IndexPath(row: 0, section: section)
-        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath)
-        
-        return headerView.systemLayoutSizeFitting(
-            CGSize(width: collectionView.frame.width, height: UIView.layoutFittingExpandedSize.height),
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let availableWidth = collectionView.frame.width - params.paddingWidth

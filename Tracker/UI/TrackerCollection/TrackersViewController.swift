@@ -52,6 +52,7 @@ extension TrackersViewController {
         let layout = UICollectionViewFlowLayout()
 
         trackerCollection = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        layout.headerReferenceSize = .init(width: 50, height: 50)
         trackerCollection.delegate = self
         trackerCollection.dataSource = self
 
@@ -63,7 +64,7 @@ extension TrackersViewController {
         trackerCollection.register(
             SupplementaryView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: SupplementaryView.supplementaryIdentifier
+            withReuseIdentifier: "\(SupplementaryView.self)"
         )
 
         view.addSubview(trackerCollection)
@@ -217,40 +218,23 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        var id: String
         switch kind {
         case UICollectionView.elementKindSectionHeader:
-            id = "header"
-        case UICollectionView.elementKindSectionHeader:
-            id = "footer"
+            guard let view = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: "\(SupplementaryView.self)",
+                for: indexPath) as? SupplementaryView else {
+                return UICollectionReusableView()
+            }
+            view.titleLabel.text = filteredCategories[indexPath.section].title
+            return view
         default:
-            id = ""
-        }
-
-        guard let view = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind,
-            withReuseIdentifier: id,
-            for: indexPath
-        ) as? SupplementaryView else {
             return UICollectionReusableView()
         }
-
-        view.titleLabel.text = filteredCategories[indexPath.section].title
-        return view
     }
 }
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        let indexPath = IndexPath(row: 0, section: section)
-        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath)
-
-        return headerView.systemLayoutSizeFitting(
-            CGSize(width: collectionView.frame.width, height: UIView.layoutFittingExpandedSize.height),
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-    }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let availableWidth = collectionView.frame.width - params.paddingWidth
